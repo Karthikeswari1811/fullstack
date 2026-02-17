@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz App</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+body{font-family:Arial;background:#1e3c72;padding:20px}
+.box{background:#fff;max-width:600px;margin:auto;padding:25px;border-radius:10px}
+h1{text-align:center;color:#1e3c72}
+li{list-style:none;margin:8px 0;padding:10px;background:#eee;cursor:pointer;border-radius:5px}
+.selected{background:#1e3c72;color:#fff}
+button{padding:8px 15px;margin:5px;border:none;border-radius:5px;cursor:pointer;color:#fff}
+#next,#submit{background:#1e3c72} #prev{background:#777} #restart{background:#e74c3c}
+.score{font-size:35px;color:#1e3c72;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h1>Quiz</h1>
+<div id="quiz">
+<div id="q"></div>
+<ul id="opt"></ul>
+<button id="prev">Prev</button>
+<button id="next">Next</button>
+<button id="submit" style="display:none">Submit</button>
+</div>
+<div id="result" style="display:none">
+<h2>Completed!</h2>
+<div class="score" id="score"></div>
+<button id="restart">Restart</button>
+</div>
+</div>
+
+<script>
+$(function(){
+let q=[
+{q:"HTML stands for?",o:["Hyper Text Markup Language","HighText Machine","Hyper Tool","None"],a:0},
+{q:"Which is backend language?",o:["CSS","Java","HTML","Bootstrap"],a:1},
+{q:"jQuery is a?",o:["Library","Language","Database","OS"],a:0},
+{q:"Which is NoSQL DB?",o:["MySQL","Oracle","MongoDB","SQL Server"],a:2},
+{q:"CSS used for?",o:["Structure","Logic","Styling","Server"],a:2}
+],c=0,ans=[],score=0;
+
+function load(){
+$("#q").text("Q"+(c+1)+". "+q[c].q);
+$("#opt").empty();
+$.each(q[c].o,(i,v)=>$("#opt").append($("<li>").text(v).data("i",i).toggleClass("selected",ans[c]==i)));
+$("#prev").prop("disabled",c==0);
+$("#next").toggle(c<q.length-1);
+$("#submit").toggle(c==q.length-1);
+}
+
+$(document).on("click","li",function(){
+$("li").removeClass("selected");
+$(this).addClass("selected");
+ans[c]=$(this).data("i");
+});
+
+$("#next").click(()=>ans[c]==undefined?alert("Select answer"):($("#quiz").fadeOut(200,()=>{c++;load();$("#quiz").fadeIn(200)})));
+$("#prev").click(()=>$("#quiz").fadeOut(200,()=>{c--;load();$("#quiz").fadeIn(200)}));
+
+$("#submit").click(function(){
+if(ans[c]==undefined) return alert("Select answer");
+score=q.filter((x,i)=>x.a==ans[i]).length;
+$("#quiz").hide(); $("#score").text(score+" / "+q.length); $("#result").show();
+});
+
+$("#restart").click(()=>{c=0;ans=[];score=0;$("#result").hide();load();$("#quiz").show();});
+
+load();
+});
+</script>
+</body>
+</html>
