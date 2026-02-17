@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="todoApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Professional To-Do List</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .todo-card {
+            width: 480px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.6s ease-in-out;
+            color: #fff;    }
+h3 {
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-control {
+            border-radius: 30px;
+            padding: 10px 15px;
+            border: none;
+            box-shadow: none;
+        }
+        .btn-primary {
+            border-radius: 30px;
+            background: #ff6b6b;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-primary:hover {
+            background: #ff4757;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+        }
+
+        .btn-warning {
+            background: #feca57;
+            border: none;
+            color: #000;
+        }
+        .btn-success {
+            background: #1dd1a1;
+            border: none;
+        }
+        .list-group-item {
+            border-radius: 12px !important;
+            margin-bottom: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            transition: 0.3s;
+        }
+        .list-group-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        .btn-danger {
+            border-radius: 20px;
+            background: #ff4757;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-danger:hover {
+            background: #e84118;
+            transform: scale(1.05);
+        }
+        .footer-text {
+            font-size: 14px;
+            color: #f1f1f1;
+            font-weight: 300;
+        }
+    </style>
+</head>
+<body ng-controller="TodoController">
+<div class="card todo-card p-4">
+    <h3 class="text-center mb-4">My To-Do List</h3>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control"
+               placeholder="Enter a new task..."
+               ng-model="newTask"
+               ng-keypress="($event.which === 13) && addTask()">
+        <button class="btn btn-primary" ng-click="addTask()">Add</button>
+    </div>
+    <div class="text-center mb-3">
+        <button class="btn btn-sm btn-secondary me-2" ng-click="filterStatus=''">All</button>
+        <button class="btn btn-sm btn-warning me-2" ng-click="filterStatus=false">Active</button>
+        <button class="btn btn-sm btn-success" ng-click="filterStatus=true">Completed</button>
+    </div>
+
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center task-item"
+            ng-repeat="task in tasks | filter:{completed:filterStatus}">
+            <div>
+                <input type="checkbox" class="form-check-input me-2"
+                       ng-model="task.completed"
+                       ng-change="saveTasks()">
+                <span ng-class="{'completed': task.completed}">
+                    {{task.title}}
+                </span>
+            </div>
+            <button class="btn btn-sm btn-danger"
+                    ng-click="deleteTask($index)">
+                Delete
+            </button>
+        </li>
+    </ul>
+    <div class="text-center mt-3 footer-text">
+        {{ remaining() }} task(s) remaining
+    </div>
+</div>
+<script>
+    var app = angular.module('todoApp', []);
+    app.controller('TodoController', function($scope) {
+        $scope.tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        $scope.filterStatus = '';
+        $scope.saveTasks = function() {
+            localStorage.setItem('tasks', JSON.stringify($scope.tasks));
+        };
+        $scope.addTask = function() {
+            if ($scope.newTask && $scope.newTask.trim() !== "") {
+                $scope.tasks.push({
+                    title: $scope.newTask.trim(),
+                    completed: false
+                });
+                $scope.newTask = "";
+                $scope.saveTasks();
+            }
+        };
+        $scope.deleteTask = function(index) {
+            $scope.tasks.splice(index, 1);
+            $scope.saveTasks();
+        };
+        $scope.remaining = function() {
+            return $scope.tasks.filter(function(task) {
+                return !task.completed;
+            }).length;
+        };
+    });
+</script>
+</body>
+</html>
